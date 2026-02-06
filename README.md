@@ -199,4 +199,4 @@ This project is licensed under the **MIT License**.
 
 ## 👨‍💻 Author
 **Logic Ninjaz**  
-GitHub: https://github.com/Riteshkalkar/Practical-Portal
+GitHub: https://github.com/Riteshkalkar
