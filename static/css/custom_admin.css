@@ -1,0 +1,92 @@
+/* -------------------
+   Card Styling
+------------------- */
+.card {
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+/* -------------------
+   Input Fields
+------------------- */
+.form-control {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #495057;
+    box-shadow: 0 0 8px rgba(73, 80, 87, 0.25);
+}
+
+/* -------------------
+   Labels
+------------------- */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* -------------------
+   Buttons
+------------------- */
+.btn-dark {
+    background: linear-gradient(135deg, #343a40, #495057);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-dark:hover {
+    background: linear-gradient(135deg, #495057, #343a40);
+    transform: translateY(-2px);
+}
+
+/* -------------------
+   Alerts
+------------------- */
+.alert {
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+}
+
+/* -------------------
+   Card Header
+------------------- */
+.card-header {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* -------------------
+   Eye icon for password
+------------------- */
+#togglePassword {
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+#togglePassword:hover {
+    color: #343a40;
+}
+
+/* -------------------
+   Responsive Adjustments
+------------------- */
+@media (max-width: 576px) {
+    .container {
+        padding: 1rem;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    .btn-lg {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+    }
+}

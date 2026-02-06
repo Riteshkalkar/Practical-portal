@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DOCX Preview</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
+
+  <style>
+    :root {
+      --viewer-bg: #ffffff;
+      --panel-bg: #f8f9fa;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--viewer-bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .container {
+      padding: 18px;
+    }
+
+    .file-info {
+      background: var(--panel-bg);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .viewer {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      overflow-x: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .viewer h1, .viewer h2, .viewer h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-top: 1.5rem;
+      color: #333;
+    }
+
+    .viewer p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin: 0.5rem 0;
+    }
+
+    .viewer img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 16px auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .small-muted {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .error {
+      color: #b00020;
+      background: #fff5f5;
+      border: 1px solid #ffd6d6;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .viewer {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="d-flex align-items-center gap-2">
+      <a id="downloadBtn" class="btn btn-light btn-sm" href="#" download>
+        <i class="bi bi-download"></i> Download
+      </a>
+      <a id="openBtn" class="btn btn-light btn-sm" href="#" target="_blank">
+        <i class="bi bi-box-arrow-up-right"></i> Open Direct
+      </a>
+      <button id="closeBtn" class="btn btn-secondary btn-sm">Close</button>
+    </div>
+    <div>
+      <select id="zoomControl" class="form-select form-select-sm">
+        <option value="1">100%</option>
+        <option value="1.25">125%</option>
+        <option value="1.5">150%</option>
+        <option value="2">200%</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="fileInfo" class="file-info" style="display:none;">
+      <div>
+        <div><strong id="fileName">File</strong></div>
+        <div class="small-muted" id="fileType">DOCX</div>
+      </div>
+      <div class="text-end small-muted">
+        <div id="fileStatus">Loaded</div>
+      </div>
+    </div>
+
+    <div id="viewer" class="viewer">
+      <div id="loader" class="small-muted">Loading document…</div>
+    </div>
+
+    <div id="error" class="error" style="display:none;"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.17/mammoth.browser.min.js"></script>
+
+  <script>
+    (function () {
+      function getQueryParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+      }
+
+      const fileUrl = getQueryParam('file');
+      const viewerEl = document.getElementById('viewer');
+      const loader = document.getElementById('loader');
+      const errorEl = document.getElementById('error');
+      const fileInfoEl = document.getElementById('fileInfo');
+      const fileNameEl = document.getElementById('fileName');
+      const fileTypeEl = document.getElementById('fileType');
+      const fileStatusEl = document.getElementById('fileStatus');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const openBtn = document.getElementById('openBtn');
+      const closeBtn = document.getElementById('closeBtn');
+      const zoomControl = document.getElementById('zoomControl');
+
+      function showError(msg) {
+        errorEl.style.display = 'block';
+        errorEl.innerText = msg;
+        loader.style.display = 'none';
+      }
+
+      if (!fileUrl) {
+        showError('No file specified. Provide ?file=<URL-to-docx>');
+        return;
+      }
+
+      try {
+        const name = decodeURIComponent(fileUrl.split('/').pop());
+        fileNameEl.textContent = name || 'Document.docx';
+      } catch (e) {
+        fileNameEl.textContent = 'Document.docx';
+      }
+
+      fileTypeEl.textContent = 'DOCX';
+      fileInfoEl.style.display = 'flex';
+      downloadBtn.href = fileUrl;
+      downloadBtn.setAttribute('download', '');
+      openBtn.href = fileUrl;
+
+      closeBtn.addEventListener('click', function () {
+        if (window.opener) window.close();
+        else history.back();
+      });
+
+      zoomControl.addEventListener('change', function () {
+        const scale = parseFloat(this.value);
+        viewerEl.style.transform = `scale(${scale})`;
+        viewerEl.style.transformOrigin = 'top left';
+      });
+
+      loader.style.display = 'block';
+      fetch(fileUrl, { method: 'GET' })
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to fetch file: ' + response.status + ' ' + response.statusText);
+          return response.arrayBuffer();
+        })
+        .then(arrayBuffer => {
+          const options = {
+            convertImage: mammoth.images.inline(function(element) {
+              return element.read("base64").then(function(imageBuffer) {
+                return { src: "data:" + element.contentType + ";base64," + imageBuffer };
+              });
+            })
+          };
+
+          return mammoth.convertToHtml({ arrayBuffer: arrayBuffer }, options);
+        })
+        .then(result => {
+          loader.style.display = 'none';
+          viewerEl.innerHTML = result.value || '<div class="small-muted">(Empty document)</div>';
+          fileStatusEl.textContent = 'Rendered';
+        })
+        .catch(err => {
+          console.error(err);
+          showError('Error rendering document: ' + (err.message || err));
+          fileStatusEl.textContent = 'Error';
+        });
+    })();
+    
+  </script>
+
+</body>
+</html>
