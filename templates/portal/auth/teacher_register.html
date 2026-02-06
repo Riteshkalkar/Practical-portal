@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Registration - Student Submission Portal{% endblock %}
+
+{% block content %}
+
+<!-- ✨ Modern UI & Animation CSS ✨ -->
+<style>
+    body{
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #ffe0e0, #b6fdc5);
+    justify-content: center;
+    align-items: center;
+    }
+    /* Page fade animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Smooth hover animation */
+    @keyframes buttonPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.04); }
+        100% { transform: scale(1); }
+    }
+
+    /* Card styling */
+    .modern-card {
+        border-radius: 22px;
+        border: none;
+        animation: fadeIn 0.5s ease-out;
+        background: #ffffffdd;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    /* Gradient header */
+    .modern-header {
+        border-radius: 22px 22px 0 0 !important;
+        background: linear-gradient(135deg, #28a745, #149b50);
+        padding: 28px;
+        color: #fff;
+        text-align: center;
+    }
+
+    /* Smooth form inputs */
+    .form-control {
+        border-radius: 12px !important;
+        padding: 12px 14px !important;
+        border: 1px solid #d0d7e0 !important;
+        transition: 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #28a745 !important;
+        box-shadow: 0px 0px 6px rgba(40,167,69,0.3) !important;
+    }
+
+    /* Button styling */
+    .modern-btn {
+        border-radius: 12px;
+        padding: 12px;
+        background: linear-gradient(135deg, #28a745, #148f47);
+        border: none;
+        color: white;
+        font-size: 18px;
+        transition: 0.2s;
+    }
+
+    .modern-btn:hover {
+        animation: buttonPop 0.3s ease;
+        background: linear-gradient(135deg, #2ccc5f, #0e7b3a);
+    }
+
+    /* Card footer link */
+    .modern-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card modern-card shadow">
+
+                <!-- Header -->
+                <div class="modern-header">
+                    <h4>
+                        <i class="fas fa-user-plus me-2"></i>
+                        Teacher Registration
+                    </h4>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-1"></i>
+                                    Full Name *
+                                </label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}
+                                    <div class="text-danger small">{{ form.full_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-at me-1"></i>
+                                    Username *
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    Email *
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-building me-1"></i>
+                                    Department *
+                                </label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                    <div class="text-danger small">{{ form.department.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>
+                                    Password *
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>
+                                    Confirm Password *
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn modern-btn w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Register
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer text-center modern-footer">
+                    <p class="mb-0">
+                        Already have an account?
+                        <a href="{% url 'teacher_login' %}" class="text-success fw-bold">Login here</a>
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

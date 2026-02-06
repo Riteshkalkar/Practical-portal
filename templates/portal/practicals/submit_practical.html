@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Practical - Student Submission Portal{% endblock %}
+
+{% block extra_css %}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-edit me-2"></i>{{ practical.title }}</h4>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div>
+                            <span class="badge bg-light text-dark">Practical {{ practical.number }}</span>
+                            <span class="badge bg-light text-dark">{{ practical.subject.code }}</span>
+                        </div>
+                        <div>
+                            <strong>Deadline:</strong> {{ practical.deadline|date:"M d, Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <!-- Practical Description -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Instructions</h6>
+                        <p class="mb-0">{{ practical.description|linebreaks }}</p>
+                    </div>
+
+                    <!-- Submission Status -->
+                    {% if submission and not submission.is_draft %}
+                        <div class="alert alert-{% if submission.status == 'approved' %}success{% elif submission.status == 'rejected' %}danger{% else %}warning{% endif %}">
+                            <h6><i class="fas fa-info-circle me-2"></i>Submission Status</h6>
+                            <p class="mb-1">
+                                <strong>Status:</strong> {{ submission.get_status_display }}
+                                {% if submission.is_late %}
+                                    <span class="badge bg-warning text-dark ms-2">Late Submission</span>
+                                {% endif %}
+                            </p>
+                            {% if submission.submitted_at %}
+                                <p class="mb-1"><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+                            {% endif %}
+                            {% if submission.feedback %}
+                                <p class="mb-0"><strong>Feedback:</strong> {{ submission.feedback|linebreaks }}</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Submission Form -->
+                    {% if submission.is_draft or submission.status == 'rejected' or not submission %}
+                        <form method="post" enctype="multipart/form-data" id="practicalForm">
+                            {% csrf_token %}
+
+                           
+
+                            <!-- File Upload -->
+                            <div class="mb-4">
+                                <label for="{{ form.file_path.id_for_label }}" class="form-label">
+                                    <i class="fas fa-upload me-1"></i>Upload File
+                                </label>
+                                {{ form.file_path }}
+                                {% if form.file_path.errors %}
+                                    <div class="text-danger mt-2">{{ form.file_path.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text"> upload your file directly from system/pendrive. Allowed formats: <strong>PDF, DOC, DOCX, </strong>.</div>
+                            </div>
+
+                            <!-- Hidden Action Field -->
+                            <input type="hidden" name="action" id="actionField" value="save_draft">
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-primary"
+                                            onclick="document.getElementById('actionField').value='final_submit'; return validateFile();">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                            <h4>Practical Already Submitted</h4>
+                            <p class="text-muted">Your practical has been submitted and is under review.</p>
+                            <a href="{% url 'student_dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    {{ form.media.js }}
+    <script>
+        function validateFile() {
+            const fileInput = document.getElementById("id_file_path"); // Django default id for file field
+            if(fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const allowedExtensions = /(\.pdf|\.doc|\.docx)$/i;
+                if(!allowedExtensions.exec(file.name)) {
+                    alert("Invalid file type! Only PDF, DOC, DOCX, are allowed.");
+                    fileInput.value = ""; // clear the input
+                    return false;
+                }
+            }
+            return true; // no file or valid file
+        }
+    </script>
+{% endblock %}

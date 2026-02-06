@@ -1,0 +1,532 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Review Submission - Student Submission Portal{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap and Font Awesome (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    {% block extra_css %}
+    <style>
+        :root {
+            --bg-grad-start: #f8f9fa;
+            --bg-grad-end: #e0eafc;
+            --text-color: #2c3e50;
+            --card-radius: 16px;
+            --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
+            --shadow-hover: 0 14px 40px rgba(0,0,0,0.12);
+            --accent: #4f46e5;
+            --accent-2: #0ea5e9;
+            --accent-3: #f59e0b;
+            --border-muted: #a0aec0;
+            --surface: #f9fafb;
+        }
+
+        /* Global */
+        html, body {
+            height: 100%;
+        }
+        body {
+            background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
+            font-family: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Page intro */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            animation: fadeInDown 0.6s ease;
+        }
+        .page-header .title {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow-soft);
+            border: none;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            background: white;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .card-header {
+            font-weight: 600;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-header.bg-dark {
+            background: linear-gradient(135deg, #111827, #1f2937);
+        }
+        .card-header.bg-warning {
+            background: linear-gradient(135deg, #fde68a, #f59e0b);
+        }
+
+        /* Viewer */
+        .viewer-wrapper {
+            position: relative;
+        }
+        .viewer-toolbar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: saturate(1.2) blur(8px);
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+        .viewer-toolbar .btn {
+            border-radius: 10px;
+        }
+
+        /* Wrapper to center viewer */
+    .viewer-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+/* Centered viewer box */
+    .viewer-container {
+        width: 90%;
+        height: 68vh;
+        border: 2px solid var(--border-muted);
+        border-radius: var(--card-radius);
+        background: var(--surface);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        overflow: hidden;
+        position: relative;
+        animation: fadeInUp 0.8s ease;
+        margin: 0 auto; /* ---- THIS centers it horizontally ---- */
+    }
+        .viewer-iframe {
+            width: 90%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+        .viewer-iframe.active {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.35s ease-in-out;
+        }
+
+        /* Image style */
+        .viewer-image {
+            max-width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            border-radius: var(--card-radius);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border: 3px solid #e11d48;
+            background: #fff;
+            animation: zoomIn 0.45s ease;
+        }
+
+        /* Status badge */
+        .status-badge {
+            font-size: 0.82rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        /* Loading shimmer */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(255,255,255,0.45));
+            backdrop-filter: blur(6px);
+            z-index: 4;
+        }
+        .loader {
+            width: 56px;
+            height: 56px;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        /* Footer actions */
+        .viewer-actions {
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Buttons */
+        .btn {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .btn-outline-primary:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .btn-outline-info:hover {
+            background: var(--accent-2);
+            color: white;
+            border-color: var(--accent-2);
+        }
+
+        /* Form */
+        .form-label {
+            font-weight: 600;
+        }
+        textarea.form-control, .form-control {
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        textarea.form-control:focus, .form-control:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 4px rgba(14,165,233,0.15);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 992px) {
+            .viewer-container { height: 64vh; }
+        }
+        @media (max-width: 576px) {
+            .viewer-container { height: 56vh; }
+            .viewer-toolbar { top: 8px; left: 8px; }
+        }
+    </style>
+    {% endblock %}
+</head>
+
+<body>
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <span class="badge bg-gradient" style="background: linear-gradient(135deg, #6366f1, #22d3ee); padding: 10px 12px; border-radius: 12px;">
+            <i class="fa-solid fa-clipboard-check text-white"></i>
+        </span>
+        <div>
+            <div class="title h4 mb-0">Review Submission</div>
+            <div class="page-subtitle">Smart preview, clean details, and a simple approval workflow</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Submission Details -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header p-0 mb-3 bg-transparent text-dark">
+                        <i class="fa-solid fa-info-circle text-primary"></i>
+                        <span>Submission details</span>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <p class="mb-1"><strong>Subject:</strong> {{ submission.practical.subject.code }} - {{ submission.practical.subject.name }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Practical no:</strong> {{ submission.practical.number }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Deadline:</strong> {{ submission.practical.deadline|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-6 d-flex align-items-center">
+                            <strong class="me-2">Status:</strong>
+                            <span class="status-badge badge bg-{% if submission.is_late %}warning text-dark{% else %}success{% endif %}">
+                                {% if submission.is_late %}Late Submission{% else %}On Time{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Information -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header p-0 mb-3 bg-transparent text-dark">
+                        <i class="fa-solid fa-user-graduate text-primary"></i>
+                        <span>Student information</span>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <p class="mb-1"><strong>Name:</strong> {{ submission.student.full_name }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Roll no:</strong> {{ submission.student.roll_number }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Department:</strong> {{ submission.student.get_department_display }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-0"><strong>Class:</strong> {{ submission.student.get_student_class_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Preview -->
+        <div class="col-12">
+            <div class="card viewer-wrapper">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fa-solid fa-file me-2"></i>File preview</h5>
+                </div>
+
+                <!-- Toolbar -->
+<div class="viewer-toolbar">
+    <button class="btn btn-sm btn-outline-secondary" id="refreshViewer" title="Reload viewer">
+        <i class="fa-solid fa-rotate-right"></i>
+    </button>
+    
+    <a href="{% url 'download_submission' submission.id %}" class="btn btn-sm btn-outline-primary" title="Download file">
+        <i class="fa-solid fa-download"></i>
+    </a>
+
+    <a href="{% url 'serve_file_direct' 'submission' submission.id %}" class="btn btn-sm btn-outline-info" target="_blank" title="Open in new tab">
+        <i class="fa-solid fa-up-right-from-square"></i>
+    </a>
+
+    <!-- Open in Google Docs Viewer -->
+    {% comment %}Compute full URL for Google Docs{% endcomment %}
+    <a href="https://docs.google.com/gview?embedded=true&url={{ request.scheme }}://{{ request.get_host }}{{ submission.file_path.url }}" 
+   class="btn btn-sm btn-outline-success" target="_blank" title="Open in Google Docs Viewer">
+    <i class="fa-solid fa-file-lines me-1"></i>Google Docs
+</a>
+</div>
+
+                <div class="viewer-container" id="viewerBox">
+                    <!-- Loading state -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loader" aria-label="Loading"></div>
+                    </div>
+                    <!-- Viewers -->
+                    <iframe id="pdfViewer" class="viewer-iframe" title="PDF viewer"></iframe>
+                    <iframe id="docxViewer" class="viewer-iframe" title="DOCX viewer"></iframe>
+                    <iframe id="googleViewer" class="viewer-iframe" title="Google Docs viewer"></iframe>
+                    <!-- Dynamic image injects here when applicable -->
+                </div>
+
+              
+            </div>
+        </div>
+
+        <!-- Feedback & Decision -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fa-solid fa-comment me-2"></i>Provide feedback & decision</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ feedback_form.feedback.id_for_label }}" class="form-label">
+                                <i class="fa-regular fa-comments me-1"></i>Feedback (optional)
+                            </label>
+                            {{ feedback_form.feedback }}
+                            <div class="form-text">Offer constructive, actionable notes to help the student improve.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Back to dashboard
+                            </a>
+                            <div class="btn-group">
+                                <button type="submit" name="action" value="reject" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to reject this submission?')">
+                                    <i class="fa-solid fa-xmark me-2"></i>Reject
+                                </button>
+                                <button type="submit" name="action" value="approve" class="btn btn-success"
+                                        onclick="return confirm('Are you sure you want to approve this submission?')">
+                                    <i class="fa-solid fa-check me-2"></i>Approve
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
+<script>
+(function() {
+    const pdfFrame = document.getElementById("pdfViewer");
+    const docxFrame = document.getElementById("docxViewer");
+    const googleFrame = document.getElementById("googleViewer");
+    const viewerBox = document.getElementById("viewerBox");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const refreshBtn = document.getElementById("refreshViewer");
+
+    const realPath = "{{ submission.file_path.url|lower }}";
+    const fileUrl = "{% url 'serve_file_direct' 'submission' submission.id %}";
+    const googleURL = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(fileUrl);
+
+    const imageTypes = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"];
+    const isImage = imageTypes.some(ext => realPath.endsWith(ext));
+    const isPDF = realPath.endsWith(".pdf");
+    const isDocx = (realPath.endsWith(".docx") || realPath.endsWith(".doc"));
+
+    function hideAll() {
+        pdfFrame.classList.remove("active");
+        docxFrame.classList.remove("active");
+        googleFrame.classList.remove("active");
+        pdfFrame.style.display = "none";
+        docxFrame.style.display = "none";
+        googleFrame.style.display = "none";
+        // clear any image injected
+        const existingImg = viewerBox.querySelector(".viewer-image");
+        if (existingImg) existingImg.remove();
+    }
+
+    function showLoading(show=true) {
+        if (!loadingOverlay) return;
+        loadingOverlay.style.display = show ? "grid" : "none";
+    }
+
+    function loadViewer() {
+        showLoading(true);
+        hideAll();
+
+        // Image direct render
+        if (isImage) {
+            const img = document.createElement("img");
+            img.src = fileUrl;
+            img.alt = "Submission image preview";
+            img.className = "viewer-image";
+            img.onload = () => showLoading(false);
+            img.onerror = () => {
+                showLoading(false);
+                fallbackGoogle();
+            };
+            viewerBox.appendChild(img);
+            return;
+        }
+
+        // PDF via PDF.js
+        if (isPDF) {
+            const pdfjsViewer = "{% static 'pdfjs/web/viewer.html' %}?file=" + encodeURIComponent(fileUrl);
+            pdfFrame.src = pdfjsViewer;
+            pdfFrame.style.display = "block";
+            pdfFrame.classList.add("active");
+            // naive load end
+            pdfFrame.onload = () => showLoading(false);
+            pdfFrame.onerror = () => { showLoading(false); fallbackGoogle(); };
+            return;
+        }
+
+        // DOCX via docx-preview page
+        if (isDocx) {
+            const docxPreview = "{% static 'docxjs/docx-preview.html' %}?file=" + encodeURIComponent(fileUrl);
+            docxFrame.src = docxPreview;
+            docxFrame.style.display = "block";
+            docxFrame.classList.add("active");
+            docxFrame.onload = () => showLoading(false);
+            docxFrame.onerror = () => { showLoading(false); fallbackGoogle(); };
+            return;
+        }
+
+        // Unknown -> Google Docs fallback
+        fallbackGoogle();
+    }
+
+    function fallbackGoogle() {
+        googleFrame.src = googleURL;
+        googleFrame.style.display = "block";
+        googleFrame.classList.add("active");
+        googleFrame.onload = () => showLoading(false);
+        googleFrame.onerror = () => {
+            showLoading(false);
+            showError("Unable to preview this file. Please use Download or Open Direct.");
+        };
+    }
+
+    function showError(message) {
+        hideAll();
+        const errorBox = document.createElement("div");
+        errorBox.className = "p-4 text-center";
+        errorBox.innerHTML = `
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                 style="background:#fff3cd; border:1px solid #f0ad4e; box-shadow:0 6px 18px rgba(0,0,0,0.06);">
+                <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                <span class="text-dark">${message}</span>
+            </div>
+        `;
+        viewerBox.appendChild(errorBox);
+    }
+
+    // Actions
+    refreshBtn.addEventListener("click", function() {
+        loadViewer();
+    });
+
+    // Initialize
+    loadViewer();
+})();
+</script>
+{% endblock %}
+</body>
+</html>

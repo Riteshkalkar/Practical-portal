@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard - Student Submission Portal{% endblock %}
+
+{% block content %}
+<style>
+    /* Smooth Card Hover */
+    .card, .dashboard-card {
+        transition: all 0.3s ease;
+        border-radius: 15px !important;
+    }
+    .card:hover, .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Modern Gradient Header */
+    .dashboard-card {
+        background: linear-gradient(135deg, #007bff, #6610f2) !important;
+        border: none;
+        color: white;
+    }
+
+    /* Glass Effect List Items */
+    .list-group-item {
+        background: rgba(255,255,255,0.6) !important;
+        backdrop-filter: blur(6px);
+        border-radius: 10px;
+        margin-bottom: 8px;
+    }
+
+    /* Smooth Buttons */
+    .btn {
+        border-radius: 8px !important;
+        transition: 0.3s;
+    }
+    .btn:hover {
+        transform: scale(1.05);
+    }
+
+    /* Table Style */
+    table thead {
+        background: linear-gradient(135deg, #17a2b8, #117a8b);
+        color: white;
+    }
+
+    tbody tr:hover {
+        background: rgba(0,0,0,0.05);
+        transition: 0.2s;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 6px 8px;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-card p-4 shadow-lg">
+                <h2 class="mb-1 fw-bold">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>
+                    Welcome, {{ user.full_name }}!
+                </h2>
+                <p class="text-light mb-0">
+                    <i class="fas fa-building me-2"></i>{{ user.get_department_display }} Department
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 1: Subjects + Practicals -->
+    <div class="row g-4">
+
+        <!-- My Subjects -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-book me-2"></i> My Subjects
+                </div>
+                <div class="card-body">
+                    {% if subjects %}
+                        <div class="list-group list-group-flush">
+                            {% for subject in subjects %}
+                                <div class="list-group-item shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold mb-0">{{ subject.code }}</h6>
+                                            <small class="text-muted">{{ subject.name }}</small>
+                                        </div>
+                                        <div class="btn-group">
+                                            <a href="{% url 'add_practical' subject.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-plus"></i> Practical
+                                            </a>
+                                            <a href="{% url 'add_certificate' subject.id %}" class="btn btn-outline-dark btn-sm">
+                                                <i class="fas fa-certificate"></i> Certificate
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-book fa-2x mb-2"></i>
+                            <p>No subjects assigned yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- My Practicals -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-flask me-2"></i> My Practicals
+                </div>
+                <div class="card-body">
+                    {% if practicals %}
+                        <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                            {% for practical in practicals %}
+                                <div class="list-group-item shadow-sm">
+                                    <h6 class="fw-bold">Practical {{ practical.number }}</h6>
+                                    <p>{{ practical.title }}</p>
+                                    <small class="text-muted">
+                                        {{ practical.subject.code }} • Due: {{ practical.deadline|date:"M d, Y" }}
+                                    </small>
+                                    {% if practical.is_public %}
+                                        <span class="badge bg-warning text-dark ms-2">Best</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-flask fa-2x mb-2"></i>
+                            <p>No practicals created yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ROW 2: Pending Reviews + Certificate Submissions -->
+    <div class="row g-4 mt-1">
+
+        <!-- Pending Reviews -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-clock me-2"></i> Pending Reviews
+                </div>
+                <div class="card-body">
+                    {% if submissions %}
+                        <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                            {% for submission in submissions %}
+                                {% if submission.status == 'submitted' %}
+                                    <div class="list-group-item shadow-sm">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="fw-bold">{{ submission.student.full_name }}</h6>
+                                                <p class="small text-muted">
+                                                   Practical {{ submission.practical.number }}
+                                                </p>
+                                                <small class="text-muted">
+                                                    Roll: {{ submission.student.roll_number }}
+                                                </small>
+                                            </div>
+                                            <a href="{% url 'review_submission' submission.id %}"
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-clipboard-check fa-2x mb-2"></i>
+                            <p>No pending reviews.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate Submissions -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-secondary text-white">
+                    <i class="fas fa-certificate me-2"></i> Certificate Submissions
+                </div>
+                <div class="card-body">
+                    {% if certificate_submissions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle text-center">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Roll No.</th>
+                                        <th>Submitted At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cert in certificate_submissions %}
+                                        <tr>
+                                            <td>{{ cert.student.full_name }}</td>
+                                            <td>{{ cert.student.roll_number }}</td>
+                                            <td>{{ cert.submitted_at|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    {% if cert.status == 'pending' %}
+                                                        <a href="{% url 'approve_certificate_teacher' cert.id %}" class="btn btn-outline-success">
+                                                            <i class="fas fa-check"></i>
+                                                        </a>
+                                                        <a href="{% url 'reject_certificate' cert.id %}" class="btn btn-outline-danger">
+                                                            <i class="fas fa-times"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-muted small">No actions</span>
+                                                    {% endif %}
+                                                    {% if cert.file_path %}
+                                                        <a href="{{ cert.file_path.url }}" target="_blank"
+                                                           class="btn btn-outline-secondary">
+                                                            <i class="fas fa-download"></i>
+                                                        </a>
+                                                        <a
+                                                            href="{% url 'view_certificate' cert.id %}"
+                                                            class="btn btn-info btn-sm">view</a>
+
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-certificate fa-2x mb-2"></i>
+                            <p>No certificate submissions yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ROW 3: All Submissions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-list me-2"></i> All Submissions
+                </div>
+                <div class="card-body">
+                    {% if submissions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Roll No.</th>
+                                        <th>Practical</th>
+                                        <th>Subject</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submission in submissions %}
+                                        <tr>
+                                            <td>{{ submission.student.full_name }}</td>
+                                            <td>{{ submission.student.roll_number }}</td>
+                                            <td>{{ submission.practical.title }}</td>
+                                            <td>{{ submission.practical.subject.code }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if submission.status == 'approved' %}success{% elif submission.status == 'rejected' %}danger{% elif submission.status == 'submitted' %}primary{% else %}secondary{% endif %}">
+                                                    {{ submission.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>{{ submission.submitted_at|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    {% if submission.status == 'submitted' %}
+                                                        <a href="{% url 'review_submission' submission.id %}" class="btn btn-outline-primary">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{% url 'approve_submission' submission.id %}" class="btn btn-outline-success">
+                                                            <i class="fas fa-check"></i>
+                                                        </a>
+                                                        <a href="{% url 'reject_submission' submission.id %}" class="btn btn-outline-danger">
+                                                            <i class="fas fa-times"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    {% if submission.file_path %}
+                                                        <a href="{% url 'download_submission' submission.id %}" class="btn btn-outline-secondary">
+                                                            <i class="fas fa-download"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>No submissions yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

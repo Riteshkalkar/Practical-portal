@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Student Submission Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-card p-4 bg-primary text-white rounded-3 shadow">
+                <h2 class="mb-1">
+                    <i class="fas fa-user-shield me-2"></i>Admin Dashboard
+                </h2>
+                <p class="text-white-50 mb-0">System Overview and Management</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2 mb-3">
+            <div class="card bg-primary text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                    <h4>{{ students.count }}</h4>
+                    <p class="mb-0 small">Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-success text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                    <h4>{{ teachers.count }}</h4>
+                    <p class="mb-0 small">Teachers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-warning text-dark text-center">
+                <div class="card-body">
+                    <i class="fas fa-user-tie fa-2x mb-2"></i>
+                    <h4>{{ hods.count }}</h4>
+                    <p class="mb-0 small">HODs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-info text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-user-shield fa-2x mb-2"></i>
+                    <h4>{{ examiners.count }}</h4>
+                    <p class="mb-0 small">Examiners</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-secondary text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-book fa-2x mb-2"></i>
+                    <h4>{{ subjects.count }}</h4>
+                    <p class="mb-0 small">Subjects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-dark text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-file-upload fa-2x mb-2"></i>
+                    <h4>{{ submissions.count }}</h4>
+                    <p class="mb-0 small">Submissions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>HODs Department Assignment</h5>
+                <div>
+                    <a href="{% url 'admin:create-examiner' %}" class="btn btn-dark btn-sm me-2">Create Examiner</a>
+                    <a href="{% url 'hod_register' %}" class="btn btn-dark btn-sm">Create HOD</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if hods %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hod in hods %}
+                                    <tr>
+                                        <td>{{ hod.full_name }}</td>
+                                        <td>{{ hod.username }}</td>
+                                        <td>{{ hod.email }}</td>
+                                        <td>
+                                            {% if hod.department %}
+                                                <span class="badge bg-success">{{ hod.get_department_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Not Assigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'assign_hod_department' hod.id %}"
+                                               class="btn btn-primary btn-sm">
+                                                {% if hod.department %}Change{% else %}Assign{% endif %} Department
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-user-tie fa-3x mb-3"></i>
+                        <p>No HODs registered.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Students & Teachers Recent List -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Recent Students</h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                        <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                            {% for student in students|slice:":10" %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-1">{{ student.full_name }}</h6>
+                                    <p class="mb-1 small">
+                                        Roll: {{ student.roll_number }} | {{ student.get_department_display }} | {{ student.get_student_class_display }}
+                                    </p>
+                                    <small class="text-muted">{{ student.email }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-user-graduate fa-3x mb-3"></i>
+                            <p>No students registered.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Teachers</h5>
+                </div>
+                <div class="card-body">
+                    {% if teachers %}
+                        <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                            {% for teacher in teachers %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-1">{{ teacher.full_name }}</h6>
+                                    <p class="mb-1 small">{{ teacher.get_department_display }}</p>
+                                    <small class="text-muted">{{ teacher.email }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-chalkboard-teacher fa-3x mb-3"></i>
+                            <p>No teachers registered.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subjects -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>All Subjects</h5>
+                </div>
+                <div class="card-body">
+                    {% if subjects %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Name</th>
+                                        <th>Department</th>
+                                        <th>Class</th>
+                                        <th>Teacher</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for subject in subjects %}
+                                        <tr>
+                                            <td>{{ subject.code }}</td>
+                                            <td>{{ subject.name }}</td>
+                                            <td>{{ subject.get_department_display }}</td>
+                                            <td>{{ subject.get_student_class_display }}</td>
+                                            <td>{{ subject.teacher.full_name }}</td>
+                                            <td>{{ subject.created_at|date:"M d, Y" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-book fa-3x mb-3"></i>
+                            <p>No subjects created.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

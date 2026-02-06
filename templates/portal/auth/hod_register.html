@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}HOD Registration - Student Submission Portal{% endblock %}
+
+{% block content %}
+
+<!-- ⭐ Modern Animated UI CSS ⭐ -->
+<style>
+    body{
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #ffe0e0,  #fcf8bf);
+    
+    justify-content: center;
+    align-items: center;
+    }
+    @keyframes slideFade {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modern-card {
+        border-radius: 22px;
+        background: #ffffffee;
+        backdrop-filter: blur(12px);
+        animation: slideFade 0.6s ease-out;
+        border: none !important;
+        box-shadow: 0px 12px 35px rgba(0,0,0,0.15);
+    }
+
+    .modern-header {
+        border-radius: 22px 22px 0 0 !important;
+        background: linear-gradient(135deg, #f4c430, #d4a014);
+        padding: 20px 0;
+    }
+
+    .form-control {
+        border-radius: 12px !important;
+        padding: 12px !important;
+        border: 1px solid #cfd5df !important;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #f4c430 !important;
+        box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+    }
+
+    .modern-btn {
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f4c430, #d4a014);
+        border: none;
+        padding: 12px;
+        font-size: 18px;
+        transition: 0.25s ease;
+    }
+
+    .modern-btn:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(135deg, #ffd451, #e4b325);
+    }
+
+    .card-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .alert-info {
+        border-radius: 12px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card modern-card shadow">
+
+                <!-- Header -->
+                <div class="card-header modern-header text-dark text-center">
+                    <h4 class="fw-bold mb-0">
+                        <i class="fas fa-user-plus me-2"></i>HOD Registration
+                    </h4>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Your department will be assigned by the Admin after registration.
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-1"></i>Full Name *
+                                </label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}
+                                    <div class="text-danger small">{{ form.full_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-at me-1"></i>Username *
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email *
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Password *
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Confirm Password *
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn modern-btn w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer text-center py-3">
+                    <p class="mb-0">
+                        Already have an account?
+                        <a href="{% url 'hod_login' %}" class="text-warning fw-bold">Login here</a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends 'base.html' %} 
+
+{% block title %}Home - Online Practical Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-5 page-content">
+
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-12 text-center">
+            <div class="dashboard-card p-5 mb-4 rounded-4 shadow-lg hero-gradient overflow-hidden position-relative">
+
+                <!-- 3D Canvas Overlay -->
+                <canvas id="hero3d" class="hero3d-canvas" aria-hidden="true"></canvas>
+
+                <h1 class="display-4 mb-3 fw-bold hero-content animate__animated animate__fadeInDown">
+                    <i class="fas fa-laptop-code me-3 animate-icon"></i> Student Submission Portal
+                </h1>
+
+                <p class="lead mb-4 hero-content animate__animated animate__fadeInUp animate__delay-1s">
+                    Complete platform for practical submission, review, and certification
+                </p>
+
+                {% if not user.is_authenticated %}
+                <div class="animate__animated animate__fadeInUp animate__delay-2s">
+                    <a href="{% url 'login_selection' %}" class="btn btn-light btn-lg rounded-pill shadow-sm hero-btn btn-ripple" aria-label="Login to the portal">
+                        <i class="fas fa-sign-in-alt me-2"></i> Login
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Decorative Glass Chips -->
+                <div class="glass-chip chip-1" aria-hidden="true"></div>
+                <div class="glass-chip chip-2" aria-hidden="true"></div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    {% if not user.is_authenticated %}
+    <div class="row mt-5" id="features">
+        <div class="col-12">
+            <h2 class="text-center mb-5 fw-bold animate__animated animate__fadeInUp">Portal Features</h2>
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <div class="feature-card h-100 text-center shadow-sm rounded-4 p-4 scroll-animate" data-delay="0" tabindex="0" role="article" aria-label="Online submission feature">
+                        <div class="feature-tilt">
+                            <i class="fas fa-edit fa-3x text-primary mb-3 feature-icon" aria-hidden="true"></i>
+                            <h5 class="fw-semibold">Online submission</h5>
+                            <p class="text-muted">Submit practicals online with validations and track progress easily.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card h-100 text-center shadow-sm rounded-4 p-4 scroll-animate" data-delay="150" tabindex="0" role="article" aria-label="Quick review feature">
+                        <div class="feature-tilt">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3 feature-icon" aria-hidden="true"></i>
+                            <h5 class="fw-semibold">Quick review</h5>
+                            <p class="text-muted">Review practicals quickly and provide timely feedback to students.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card h-100 text-center shadow-sm rounded-4 p-4 scroll-animate" data-delay="300" tabindex="0" role="article" aria-label="Certificates feature">
+                        <div class="feature-tilt">
+                            <i class="fas fa-certificate fa-3x text-warning mb-3 feature-icon" aria-hidden="true"></i>
+                            <h5 class="fw-semibold">Certificates</h5>
+                            <p class="text-muted">Submit certificates and track approval by Teacher, HOD, and Examiner in real-time</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Global 3D Background -->
+<canvas id="bg3d" class="bg3d-canvas" aria-hidden="true"></canvas>
+
+<!-- Styles -->
+<style>
+    :root {
+        --accent-1: #6a11cb;
+        --accent-2: #2575fc;
+        --accent-3: #ff416c;
+        --accent-4: #ff4b2b;
+        --glass: rgba(255,255,255,0.12);
+        --glass-border: rgba(255,255,255,0.25);
+        --shadow-lg: 0 24px 50px rgba(2,6,23,0.18);
+        --shadow-md: 0 12px 24px rgba(2,6,23,0.12);
+        --radius-xl: 26px;
+        --radius-lg: 18px;
+    }
+
+    .page-content { position: relative; z-index: 2; }
+    .bg3d-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* HERO */
+    .hero-gradient {
+        background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3), var(--accent-4));
+        background-size: 800% 800%;
+        animation: gradientBG 20s ease infinite;
+        color: #fff;
+        transition: all 0.3s;
+        border-radius: var(--radius-xl);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-gradient::after {
+        content: '';
+        position: absolute;
+        inset:0;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        pointer-events:none;
+    }
+    @keyframes gradientBG {
+        0% {background-position:0% 50%;}
+        50% {background-position:100% 50%;}
+        100% {background-position:0% 50%;}
+    }
+    .hero3d-canvas {
+        position: absolute;
+        inset: 0;
+        z-index:1;
+        pointer-events:none;
+        opacity:0.25;
+        mix-blend-mode:screen;
+    }
+
+    .hero-btn, .hero-secondary-btn {
+        font-weight: 600;
+        position: relative;
+        overflow:hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.2s ease;
+    }
+    .hero-btn:hover, .hero-secondary-btn:hover {
+        transform: translateY(-3px) scale(1.08);
+        box-shadow: 0 18px 40px rgba(37,117,252,0.45);
+    }
+    .hero-btn:focus, .hero-secondary-btn:focus {
+        outline: 3px solid rgba(255,255,255,0.7);
+        outline-offset: 2px;
+    }
+    .hero-secondary-btn {
+        background: rgba(255,255,255,0.18);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+    .hero-secondary-btn:hover { background: rgba(255,255,255,0.28); }
+
+    /* Decorative Glass Chips */
+    .glass-chip {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        border-radius: 28px;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        filter: blur(1px);
+        backdrop-filter: blur(6px);
+        z-index:0;
+        animation: floatChip 12s ease-in-out infinite;
+    }
+    .chip-1 { right:-30px; top:-30px; transform: rotate(10deg); }
+    .chip-2 { left:-40px; bottom:-40px; transform: rotate(-8deg); animation-delay:2.5s; }
+    @keyframes floatChip {
+        0% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-12px) rotate(6deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    /* Feature Cards */
+    .feature-card {
+        transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.6s ease;
+        cursor: pointer;
+        background: #fff;
+        opacity: 0;
+        transform: translateY(50px);
+        border: 1px solid #eef2f7;
+    }
+    .feature-card.show { opacity:1; transform:translateY(0); }
+    .feature-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: var(--shadow-lg); }
+    .feature-tilt { transform-style: preserve-3d; perspective:800px; }
+    .feature-tilt > * { transform: translateZ(22px); }
+    .feature-icon { animation: bounceIcon 2.2s infinite; }
+    @keyframes bounceIcon { 0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);} }
+    .animate-icon { display:inline-block; animation: rotateIcon 3.8s linear infinite; }
+    @keyframes rotateIcon { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+    .scroll-animate { opacity:0; transform:translateY(50px); }
+    .scroll-animate.show { opacity:1; transform:translateY(0); }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+        .hero-gradient, .feature-card, .feature-icon, .animate-icon, .glass-chip, .hero3d-canvas, .bg3d-canvas {
+            animation:none !important; transform:none !important;
+        }
+    }
+
+    /* Accessibility focus */
+    .feature-card:focus {
+        outline: 3px solid rgba(37,117,252,0.35);
+        outline-offset:3px;
+    }
+
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+</style>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    /* Scroll reveal */
+    const scrollElements = document.querySelectorAll(".scroll-animate");
+    const elementInView = (el, offset = 100) => el.getBoundingClientRect().top <= (window.innerHeight - offset);
+    const displayScrollElement = (el, delay) => setTimeout(() => el.classList.add("show", "animate__animated", "animate__fadeInUp"), delay);
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach(el => {
+            if(elementInView(el,100)){
+                const delay=parseInt(el.dataset.delay||"0",10);
+                displayScrollElement(el,delay);
+            }
+        });
+    };
+    window.addEventListener("scroll", handleScrollAnimation,{passive:true});
+    handleScrollAnimation();
+
+    /* Feature card tilt */
+    document.querySelectorAll('.feature-card').forEach(card => {
+        const tilt = card.querySelector('.feature-tilt');
+        const maxTilt = 8;
+        card.addEventListener('mousemove',(e)=>{
+            const r=card.getBoundingClientRect();
+            const cx=e.clientX-r.left;
+            const cy=e.clientY-r.top;
+            const rx=((cy/r.height)-0.5)*-2*maxTilt;
+            const ry=((cx/r.width)-0.5)*2*maxTilt;
+            tilt.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+        });
+        card.addEventListener('mouseleave',()=>{ tilt.style.transform=''; });
+    });
+
+    /* Ripple effect */
+    document.querySelectorAll('.btn-ripple').forEach(btn=>{
+        btn.addEventListener('click',(e)=>{
+            const rect=btn.getBoundingClientRect();
+            const x=e.clientX-rect.left;
+            const y=e.clientY-rect.top;
+            const ripple=document.createElement('span');
+            ripple.style.position='absolute';
+            ripple.style.left=`${x}px`;
+            ripple.style.top=`${y}px`;
+            ripple.style.width='0px';
+            ripple.style.height='0px';
+            ripple.style.background='rgba(255,255,255,0.5)';
+            ripple.style.borderRadius='50%';
+            ripple.style.transform='translate(-50%,-50%)';
+            ripple.style.pointerEvents='none';
+            ripple.style.transition='width 0.5s ease,height 0.5s ease,opacity 0.7s ease';
+            btn.appendChild(ripple);
+            requestAnimationFrame(()=>{ ripple.style.width=ripple.style.height='280px'; ripple.style.opacity='0'; });
+            setTimeout(()=>ripple.remove(),700);
+        });
+    });
+
+    /* Enter-to-click accessibility */
+    document.querySelectorAll('.feature-card').forEach(card=>{
+        card.addEventListener('keydown', e=>{ if(e.key==='Enter') card.click(); });
+    });
+
+});
+</script>
+{% endblock %}

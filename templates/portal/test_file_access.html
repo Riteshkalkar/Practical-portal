@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}File Access Test - Student Submission Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">File Access Test</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Practical Submissions:</h6>
+                    {% if submissions %}
+                        <ul>
+                            {% for submission in submissions %}
+                                <li>
+                                    <strong>{{ submission.practical.title }}</strong> - 
+                                    <a href="{% url 'download_submission' submission.id %}">Download</a> | 
+                                    <a href="{% url 'view_practical_submission' submission.id %}" target="_blank">View</a> | 
+                                    <a href="{% url 'serve_file_direct' 'submission' submission.id %}" target="_blank">Direct</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No submissions found.</p>
+                    {% endif %}
+
+                    <h6>Certificates:</h6>
+                    {% if certificates %}
+                        <ul>
+                            {% for certificate in certificates %}
+                                <li>
+                                    <strong>{{ certificate.subject.name }}</strong> - 
+                                    <a href="{% url 'download_certificate' certificate.id %}">Download</a> | 
+                                    <a href="{% url 'view_certificate' certificate.id %}" target="_blank">View</a> | 
+                                    <a href="{% url 'serve_file_direct' 'certificate' certificate.id %}" target="_blank">Direct</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No certificates found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

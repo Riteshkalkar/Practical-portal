@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Certificate - Student Submission Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-card p-4 rounded-4 shadow-lg" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+                <h2 class="text-white mb-1">
+                    <i class="fas fa-certificate me-2"></i>
+                    Submit Certificate
+                </h2>
+                <p class="text-white-50 mb-0 fw-semibold">
+                    Upload your certificate file for {{ certificate.subject.name }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded-4 border-0">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-upload me-2"></i>
+                        Certificate Submission Form
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <!-- Certificate Info -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Certificate Information</h6>
+                        <p class="mb-1"><strong>Subject:</strong> {{ certificate.subject.code }} - {{ certificate.subject.name }}</p>
+                        <p class="mb-1"><strong>Teacher:</strong> {{ certificate.teacher.full_name }}</p>
+                        <p class="mb-0"><strong>Practical Progress:</strong> {{ approved_count }}/{{ practicals_count }} completed</p>
+                    </div>
+
+                    <!-- Practical Status Check -->
+                    {% if approved_count < practicals_count %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Cannot Submit:</strong> You need to complete all {{ practicals_count }} practicals before submitting the certificate. 
+                            You have completed {{ approved_count }} out of {{ practicals_count }}.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Ready to Submit:</strong> All practicals are completed! You can now submit your certificate.
+                        </div>
+                    {% endif %}
+
+                    <!-- Submission Form -->
+                    {% if approved_count >= practicals_count %}
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- File Input -->
+                            <div class="mb-4">
+                                <label for="id_file_path" class="form-label fw-semibold">Certificate File</label>
+                                <input type="file" class="form-control" id="id_file_path" name="file_path" accept=".docx" required>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Supported formats: DOCX Maximum file size: 10MB.
+                                </div>
+                            </div>
+
+                            <!-- Instructions -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Instructions</label>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <ul class="mb-0">
+                                            <li>Make sure your certificate file is clear and readable.</li>
+                                            <li>Include all required information in the certificate.</li>
+                                            <li>File should be in PDF or Word document format.</li>
+                                            <li>Double-check all details before submitting.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{% url 'student_dashboard' %}" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Certificate
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'student_dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

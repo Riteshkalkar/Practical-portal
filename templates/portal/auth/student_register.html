@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration - Student Submission Portal{% endblock %}
+
+{% block content %}
+
+<!-- ⭐ Modern Animated UI CSS ⭐ -->
+<style>
+    body{
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #d9e1fc, #b6c9fd);
+    justify-content: center;
+    align-items: center;
+    }
+    /* Fade in animation */
+    @keyframes fadeSlide {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modern-card {
+        border-radius: 22px;
+        background: #ffffffee;
+        backdrop-filter: blur(12px);
+        animation: fadeSlide 0.6s ease-out;
+        border: none;
+        box-shadow: 0px 12px 35px rgba(0,0,0,0.15);
+    }
+
+    .modern-header {
+        border-radius: 22px 22px 0 0 !important;
+        background: linear-gradient(135deg, #007bff, #005ecb);
+    }
+
+    .form-control {
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #cfd5df;
+        transition: 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #0067e8 !important;
+        box-shadow: 0 0 8px rgba(0, 102, 255, 0.3);
+    }
+
+    .modern-btn {
+        border-radius: 12px;
+        background: linear-gradient(135deg, #007bff, #005ecb);
+        border: none;
+        padding: 12px;
+        font-size: 18px;
+        transition: 0.25s ease;
+    }
+
+    .modern-btn:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(135deg, #1788ff, #0067e8);
+    }
+
+    .card-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <!-- Animated Card -->
+            <div class="card modern-card shadow">
+
+                <!-- Header -->
+                <div class="card-header modern-header text-white text-center py-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Student Registration
+                    </h4>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-1"></i>Full Name *
+                                </label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}
+                                    <div class="text-danger small">{{ form.full_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-at me-1"></i>Username *
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email *
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-building me-1"></i>Department *
+                                </label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                    <div class="text-danger small">{{ form.department.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-graduation-cap me-1"></i>Class *
+                                </label>
+                                {{ form.student_class }}
+                                {% if form.student_class.errors %}
+                                    <div class="text-danger small">{{ form.student_class.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-id-badge me-1"></i>Roll Number *
+                                </label>
+                                {{ form.roll_number }}
+                                {% if form.roll_number.errors %}
+                                    <div class="text-danger small">{{ form.roll_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Password *
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Confirm Password *
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn modern-btn w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer text-center py-3">
+                    <p class="mb-0">
+                        Already have an account?
+                        <a href="{% url 'student_login' %}" class="text-primary fw-bold">Login here</a>
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

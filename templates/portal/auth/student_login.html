@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Login - Student Submission Portal{% endblock %}
+
+{% block content %}
+
+<!-- ⭐ Modern Animated UI CSS ⭐ -->
+<style>
+    body{
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #d9e1fc, #b6c9fd);
+    justify-content: center;
+    align-items: center;
+    }
+    @keyframes slideFade {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modern-card {
+        border-radius: 22px;
+        background: #ffffffee;
+        backdrop-filter: blur(12px);
+        animation: slideFade 0.6s ease-out;
+        border: none !important;
+        box-shadow: 0px 12px 35px rgba(0,0,0,0.15);
+    }
+
+    .modern-header {
+        border-radius: 22px 22px 0 0 !important;
+        background: linear-gradient(135deg, #0069d9, #004bb5);
+        padding: 20px 0;
+    }
+
+    .form-control {
+        border-radius: 12px !important;
+        padding: 12px !important;
+        border: 1px solid #cfd5df !important;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #0069d9 !important;
+        box-shadow: 0 0 8px rgba(0,105,217,0.3);
+    }
+
+    .modern-btn {
+        border-radius: 12px;
+        background: linear-gradient(135deg, #0069d9, #004bb5);
+        border: none;
+        padding: 12px;
+        font-size: 18px;
+        transition: 0.25s ease;
+    }
+
+    .modern-btn:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(135deg, #1c7df0, #005ad3);
+    }
+
+    .card-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card modern-card shadow">
+
+                <!-- Header -->
+                <div class="card-header modern-header text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-graduate me-2"></i>
+                        Student Login
+                    </h4>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-user me-1"></i>Username
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-lock me-1"></i>Password
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small">{{ form.password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+
+                        <button type="submit" class="btn modern-btn w-100 mt-2 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <!-- Footer -->
+                 <div class="card-footer text-center py-3">
+                    <p class="mb-0">
+                        Not have an account?
+                        <a href="{% url 'student_register' %}" class="text-primary fw-bold">Register </a>
+                    </p>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Login - Student Submission Portal{% endblock %}
+
+{% block content %}
+
+<!-- ⭐ Modern UI & Animation CSS ⭐ -->
+<style>
+    body{
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #ffe0e0, #b6fdc5);
+    justify-content: center;
+    align-items: center;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modern-card {
+        border-radius: 22px;
+        background: #ffffffdd;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.6s ease;
+        border: none;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+    }
+
+    .modern-header {
+        border-radius: 22px 22px 0 0 !important;
+        background: linear-gradient(135deg, #28a745, #0d8a40);
+    }
+
+    .form-control {
+        border-radius: 12px !important;
+        padding: 12px !important;
+        border: 1px solid #cfd5df !important;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #28a745 !important;
+        box-shadow: 0 0 6px rgba(40,167,69,0.3);
+    }
+
+    .modern-btn {
+        border-radius: 12px;
+        background: linear-gradient(135deg, #28a745, #0c7d39);
+        border: none;
+        padding: 13px;
+        font-size: 18px;
+        transition: 0.25s;
+    }
+
+    .modern-btn:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(135deg, #2fce63, #0d8a40);
+    }
+
+    .card-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card modern-card shadow">
+                
+                <!-- Header -->
+                <div class="card-header modern-header text-white text-center py-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                        Teacher Login
+                    </h4>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-user me-1"></i>Username
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-lock me-1"></i>Password
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small">{{ form.password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+
+                        <button type="submit" class="btn modern-btn w-100 mt-2 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+
+                    </form>
+
+                </div>
+
+              
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

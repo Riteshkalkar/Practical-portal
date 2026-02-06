@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}My Certificates - Student Submission Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-card p-4 rounded-4 shadow-lg" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+                <h2 class="text-white mb-1">
+                    <i class="fas fa-certificate me-2"></i>
+                    My Certificates
+                </h2>
+                <p class="text-white-50 mb-0 fw-semibold">
+                    Track your certificate status and progress
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if certificates %}
+        <div class="row g-4">
+                {% for certificate in certificates %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-warning shadow-sm rounded-4" style="transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
+                    <div class="card-body">
+                        <h6 class="card-title fw-semibold">{{ certificate.subject.code }} - {{ certificate.subject.name }}</h6>
+                        <p class="card-text small mb-2">
+                            <strong>Teacher:</strong> {{ certificate.teacher.full_name }}<br>
+                            {% if certificate.hod %}<strong>HOD:</strong> {{ certificate.hod.full_name }}<br>{% endif %}
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{% if certificate.status == 'certified' %}success{% elif certificate.status == 'sent_to_examiner' %}warning{% elif certificate.status == 'sent_to_hod' %}info{% elif certificate.status == 'submitted_to_teacher' %}primary{% elif certificate.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                {{ certificate.get_status_display }}
+                            </span>
+                        </p>
+                        <div class="btn-group-vertical w-100">
+                            {% if certificate.status == 'generated' or certificate.status == 'template_added' %}
+                                <a href="{% url 'submit_certificate_form' certificate.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-upload me-1"></i>Submit Certificate
+                                </a>
+                            {% elif certificate.status == 'submitted_to_teacher' %}
+                                <span class="btn btn-info btn-sm disabled">Pending Teacher Approval</span>
+                            {% elif certificate.status == 'sent_to_hod' %}
+                                <span class="btn btn-info btn-sm disabled">Pending HOD Approval</span>
+                            {% elif certificate.status == 'sent_to_examiner' %}
+                                <span class="btn btn-warning btn-sm disabled">Pending Examiner Signing</span>
+                            {% elif certificate.status == 'certified' %}
+                                <span class="btn btn-success btn-sm disabled">✅ Certified</span>
+                            {% elif certificate.status == 'rejected' %}
+                                <span class="btn btn-danger btn-sm disabled">❌ Rejected</span>
+                            {% endif %}
+                            {% if certificate.file_path %}
+                                <a href="{% url 'view_certificate' certificate.id %}" class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <a href="{% url 'download_certificate' certificate.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                        {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted small">
+                        Created: {{ certificate.created_at|date:"M d, Y" }}
+                        {% if certificate.submitted_at %}<br>Submitted: {{ certificate.submitted_at|date:"M d, Y" }}{% endif %}
+                        {% if certificate.approved_at %}<br>Approved: {{ certificate.approved_at|date:"M d, Y" }}{% endif %}
+                        {% if certificate.certified_at %}<br>Certified: {{ certificate.certified_at|date:"M d, Y" }}{% endif %}
+                    </div>
+                </div>
+            </div>
+                {% endfor %}
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm rounded-4 border-0">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-certificate fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted mb-3">No Certificates Available</h4>
+                        <p class="text-muted mb-4">Complete all your practicals to get certificates!</p>
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

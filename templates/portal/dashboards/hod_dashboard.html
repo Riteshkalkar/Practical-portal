@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block title %}HOD Dashboard - Student Submission Portal{% endblock %}
+
+{% block content %}
+
+<style>
+    .section-card {
+        border: none !important;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .dashboard-header {
+        border-radius: 15px;
+        background: linear-gradient(135deg, #0066ff, #003cb3);
+    }
+
+    .stat-box {
+        border-radius: 15px;
+        transition: 0.3s;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .list-group-item {
+        border-radius: 10px !important;
+        margin-bottom: 10px;
+        padding: 15px;
+        border: 1px solid #eee;
+    }
+
+    .list-group-item:hover {
+        background: #f5f8ff;
+    }
+
+    .table thead {
+        background: #292d3e;
+        color: white;
+        border-radius: 10px;
+    }
+
+    .table tbody tr:hover {
+        background: #f2f6ff;
+    }
+
+    .btn-sm {
+        padding: 4px 10px;
+        border-radius: 8px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    .shadow-soft {
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 text-white shadow dashboard-header">
+                <h2 class="fw-bold">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Welcome, {{ user.full_name }}!
+                </h2>
+                {% if user.department %}
+                    <p class="mb-0 opacity-75">Head of {{ user.get_department_display }} Department</p>
+                {% else %}
+                    <p class="mb-0 opacity-75">Department not assigned. Contact Admin.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if no_department %}
+    <div class="alert alert-warning text-center shadow-soft">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>You do not have a department assigned. Contact the Admin.</strong>
+    </div>
+    {% else %}
+
+    <!-- STATISTICS -->
+    <div class="row mb-4">
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white stat-box shadow">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h3 class="fw-bold">{{ students.count }}</h3>
+                        <p class="m-0">Students</p>
+                    </div>
+                    <i class="fas fa-user-graduate fa-2x"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white stat-box shadow">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h3 class="fw-bold">{{ teachers.count }}</h3>
+                        <p class="m-0">Teachers</p>
+                    </div>
+                    <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white stat-box shadow">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h3 class="fw-bold">{{ subjects.count }}</h3>
+                        <p class="m-0">Subjects</p>
+                    </div>
+                    <i class="fas fa-book fa-2x"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark stat-box shadow">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h3 class="fw-bold">{{ certificates.count }}</h3>
+                        <p class="m-0">Pending Certificates</p>
+                    </div>
+                    <i class="fas fa-certificate fa-2x"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- EXAM MODE -->
+    <div class="card shadow-soft section-card mb-4">
+        <div class="card-header bg-danger text-white d-flex justify-content-between">
+            <h5><i class="fas fa-toggle-on me-2"></i>Exam Mode Control</h5>
+        </div>
+
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+                <h6 class="fw-bold mb-1">
+                    Current Status:
+                    <span class="badge bg-{% if exam_mode.is_enabled %}danger{% else %}success{% endif %}">
+                        {% if exam_mode.is_enabled %}ENABLED{% else %}DISABLED{% endif %}
+                    </span>
+                </h6>
+                <p class="text-muted m-0">
+                    {% if exam_mode.is_enabled %}
+                        Students cannot view submissions during exam mode.
+                    {% else %}
+                        Students can view submissions normally.
+                    {% endif %}
+                </p>
+            </div>
+
+            <a href="{% url 'toggle_exam_mode' %}" 
+               class="btn btn-lg btn-{% if exam_mode.is_enabled %}success{% else %}danger{% endif %}">
+                {% if exam_mode.is_enabled %}Disable{% else %}Enable{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!-- SUBJECTS -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-soft section-card h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <h5><i class="fas fa-book me-2"></i>Department Subjects</h5>
+                    <a href="{% url 'add_subject' %}" class="btn btn-light btn-sm">Add Subject</a>
+                </div>
+
+                <div class="card-body">
+                    {% if subjects %}
+                        <div class="list-group">
+                            {% for subject in subjects %}
+                            <div class="list-group-item shadow-sm">
+                                <h6 class="fw-bold">{{ subject.code }} — {{ subject.name }}</h6>
+                                <p class="text-muted m-0">
+                                    Teacher: <strong>{{ subject.teacher.full_name }}</strong>
+                                </p>
+                                <p class="small text-muted">{{ subject.get_student_class_display }}</p>
+
+                                <form method="POST" action="{% url 'renew_practicals' subject.id %}"
+                                      class="d-flex mt-2">
+                                    {% csrf_token %}
+                                    <select name="teacher_id" class="form-select form-select-sm me-2" required>
+                                        <option value="">Select Teacher</option>
+                                        {% for teacher in teachers %}
+                                            <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Delete all practicals for this subject?')">
+                                        Renew Subject
+                                    </button>
+                                </form>
+
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted py-3">No subjects found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATES -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-soft section-card h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-certificate me-2"></i>Certificates for Review</h5>
+                </div>
+
+                <div class="card-body">
+                    {% if certificates %}
+                        <div class="list-group">
+                            {% for certificate in certificates %}
+                            <div class="list-group-item shadow-sm">
+                                <h6 class="fw-bold">{{ certificate.student.full_name }}</h6>
+                                <p class="text-muted">
+                                    {{ certificate.subject.code }} - {{ certificate.subject.name }}
+                                </p>
+
+                                <div class="btn-group mt-2">
+                                    <a href="{% url 'certify_certificate' certificate.id %}"
+                                       class="btn btn-success btn-sm">Certify</a>
+                                       
+
+                                    {% if certificate.file_path %}
+                                        <a href="{% url 'download_certificate' certificate.id %}"
+                                           class="btn btn-outline-primary btn-sm">Download</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted py-4">No pending certificates.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- STUDENTS -->
+    <div class="card shadow-soft section-card mb-5">
+        <div class="card-header bg-secondary text-white">
+            <h5><i class="fas fa-users me-2"></i>Department Students</h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle shadow-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll</th>
+                                <th>Class</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.full_name }}</td>
+                                <td>{{ student.roll_number }}</td>
+                                <td>{{ student.get_student_class_display }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.date_joined|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'hod_update_student' student.id %}"
+                                       class="btn btn-primary btn-sm">Edit</a>
+
+                                    <a href="{% url 'hod_delete_student' student.id %}"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Delete this student?');">Delete</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-muted py-4">No students found.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

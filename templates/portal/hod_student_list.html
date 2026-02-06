@@ -1,0 +1,105 @@
+<style>
+    /* Smooth fade-in animation */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card shadow effect */
+    .dashboard-card {
+        background: linear-gradient(135deg, #0d6efd, #003c8f);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Table hover animation */
+    table tbody tr {
+        transition: all 0.2s ease;
+    }
+    table tbody tr:hover {
+        background: #f1f5ff;
+        transform: scale(1.01);
+    }
+
+    /* Stylish Delete Button */
+    .btn-delete {
+        background: #d90429;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-delete:hover {
+        background: #9d0208;
+        transform: scale(1.08);
+    }
+
+    /* Back Button */
+    .btn-back {
+        background: #6c757d;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-back:hover {
+        background: #495057;
+        transform: translateX(-3px);
+    }
+</style>
+
+<div class="container mt-4 fade-in">
+
+    <!-- Header Card -->
+    <div class="dashboard-card text-white mb-4 shadow">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0"><i class="fas fa-users"></i> HOD Dashboard – Students</h2>
+
+            <!-- Back To Dashboard Button -->
+            <a href="{% url 'hod_dashboard' %}" class="btn btn-back text-white">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="table-responsive fade-in">
+        <table class="table table-bordered table-hover shadow-lg rounded">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Class</th>
+                    <th>Roll No</th>
+                    <th>Department</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ s.full_name }}</td>
+                    <td>{{ s.username }}</td>
+                    <td>{{ s.email }}</td>
+                    <td>{{ s.get_student_class_display }}</td>
+                    <td>{{ s.roll_number }}</td>
+                    <td>{{ s.get_department_display }}</td>
+
+                    <td>
+                        <a href="{% url 'hod_delete_student' s.id %}"
+                           class="btn btn-delete btn-sm text-white"
+                           onclick="return confirm('Are you sure you want to delete this student?');">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>

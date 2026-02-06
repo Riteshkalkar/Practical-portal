@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Document Viewer - Student Submission Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+/* --- Global Layout --- */
+body {
+    background: linear-gradient(135deg, #f8f9fa, #e0eafc);
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    color: #2c3e50;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    animation: fadeInBody 1s ease-in-out;
+}
+@keyframes fadeInBody {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Page Title --- */
+h2 {
+    font-weight: 700;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    animation: slideIn 1s ease;
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Card Styling --- */
+.card {
+    border-radius: 20px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 24px;
+    transition: all 0.4s ease;
+    animation: fadeUp 1s ease;
+}
+.card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+}
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.card h5 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+/* --- File Info --- */
+.card strong {
+    color: #374151;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 4px;
+    transition: color 0.3s ease;
+}
+.card strong:hover {
+    color: #ff6b6b;
+}
+
+/* --- Viewer Wrapper --- */
+.viewer-wrapper {
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    border-radius: 20px;
+    padding: 20px;
+    animation: fadeViewer 1s ease-in-out;
+}
+@keyframes fadeViewer {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Viewer Frames --- */
+#googleViewer, 
+#pdfViewer, 
+#docxViewer {
+    width: 100%;
+    max-width: 1000px;
+    height: 90vh;
+    border: 2px solid #a0aec0;
+    border-radius: 16px;
+    background: #f9fafb;
+    display: block;
+    margin: 20px auto;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    object-fit: contain;
+    animation: zoomIn 0.8s ease;
+}
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Image & Video --- */
+img, video {
+    max-width: 1000px;
+    height: auto;
+    border-radius: 16px;
+    margin: 20px auto;
+    display: block;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    border: 3px solid #ff6b6b;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+img:hover, video:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+}
+
+/* --- Buttons --- */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+.button-group .btn {
+    min-width: 120px;
+    text-align: center;
+}
+.btn {
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 10px 18px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.btn::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.2);
+    transition: left 0.4s ease;
+}
+.btn:hover::after {
+    left: 0;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+}
+.btn-primary {
+    background: linear-gradient(90deg, #ff6b6b, #ff9f43);
+    border: none;
+    color: #fff;
+}
+.btn-secondary {
+    background: linear-gradient(90deg, #48dbfb, #1dd1a1);
+    border: none;
+    color: #fff;
+}
+.btn-success {
+    background: linear-gradient(90deg, #20c997, #12b886);
+    border: none;
+    color: #fff;
+}
+.btn-danger {
+    background: linear-gradient(90deg, #ee5253, #c0392b);
+    border: none;
+    color: #fff;
+}
+.btn-info {
+    background: linear-gradient(90deg, #5f27cd, #341f97);
+    border: none;
+    color: #fff;
+}
+
+/* --- Badge --- */
+.badge {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #5f27cd, #341f97);
+    color: #fff !important;
+    animation: pulseBadge 2s infinite;
+}
+@keyframes pulseBadge {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* --- Footer Text --- */
+small {
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    #googleViewer, 
+    #pdfViewer, 
+    #docxViewer {
+        width: 100%;
+        height: 75vh;
+    }
+    img, video {
+        max-width: 100%;
+        height: auto;
+    }
+    h2 {
+        font-size: 1.6rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+    <!-- PAGE HEADER -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div>
+                <h2>
+                    <i class="{{ file_icon }}"></i> Document Viewer
+                </h2>
+                <p>{{ document_title }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEWER CARD -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+
+                <!-- TOP HEADER -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="{{ file_icon }}"></i> {{ document_title }}</h5>
+                    <span class="badge">{{ file_type }}</span>
+                </div>
+
+                <!-- FILE INFO -->
+                {% if file_info %}
+                <div class="mb-3">
+                    <strong>File:</strong> {{ file_name }}<br>
+                    <strong>Type:</strong> {{ file_type }}<br>
+                    {% if student_name %}
+                    <strong>Student:</strong> {{ student_name }}<br>
+                    {% endif %}
+                    {% if subject_name %}
+                    <strong>Subject:</strong> {{ subject_name }}
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- IFRAME VIEWERS -->
+                <iframe id="googleViewer" src="" allowfullscreen></iframe>
+                <iframe id="pdfViewer" src="" allowfullscreen></iframe>
+                <iframe id="docxViewer" src="" allowfullscreen></iframe>
+
+                <div class="button-group">
+    <a href="{{ file_url }}" class="btn btn-primary btn-sm" download>Download</a>
+
+    {% if document_title|slice:":9" == "Practical" %}
+    <a href="{% url 'serve_file_direct' 'submission' file_id %}" target="_blank" class="btn btn-secondary btn-sm">Open Direct</a>
+    {% else %}
+    <a href="{% url 'serve_file_direct' 'certificate' file_id %}" target="_blank" class="btn btn-secondary btn-sm">Open Direct</a>
+    {% endif %}
+
+    <a href="{{ google_viewer_url }}" target="_blank" class="btn btn-success btn-sm">Open in Google Docs</a>
+
+
+    <button onclick="window.close()" class="btn btn-danger btn-sm">Back to Dashboard</button>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MASTER VIEWER LOGIC -->
+<script>
+window.onload = function () {
+    const googleView = document.getElementById("googleViewer");
+    const pdfView = document.getElementById("pdfViewer");
+    const docxView = document.getElementById("docxViewer");
+
+    const type = "{{ file_type|lower }}";
+    const url = "{{ file_url }}";
+    const googleUrl = "{{ google_viewer_url }}";
+
+    googleView.style.display = "none";
+    pdfView.style.display = "none";
+    docxView.style.display = "none";
+
+    // PDF
+    if (type.includes("pdf")) {
+        pdfView.src = "{% static 'pdfjs/web/viewer.html' %}?file=" + url;
+        pdfView.style.display = "block";
+        return;
+    }
+
+    // DOCX
+    if (type.includes("docx") || type.includes("word")) {
+        docxView.src = "{% static 'docxjs/docx-preview.html' %}?file=" + url;
+        docxView.style.display = "block";
+        return;
+    }
+
+    // IMAGE
+    if (["jpg","jpeg","png","gif"].some(ext => type.includes(ext))) {
+        googleView.outerHTML = `<img src="${url}">`;
+        return;
+    }
+
+    // VIDEO
+    if (["mp4","webm","mkv"].some(ext => type.includes(ext))) {
+        googleView.outerHTML = `
+            <video controls>
+                <source src="${url}">
+            </video>`;
+        return;
+    }
+
+    // GOOGLE FALLBACK
+    googleView.src = googleUrl;
+    googleView.style.display = "block";
+};
+</script>
+{% endblock %}

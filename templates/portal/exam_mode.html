@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Exam Mode - Student Submission Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4><i class="fas fa-toggle-on me-2"></i>Exam Mode Control</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Notice</h5>
+                        <p>When exam mode is enabled:</p>
+                        <ul>
+                            <li>Students cannot view their past submissions</li>
+                            <li>Only affects your department: <strong>{{ user.get_department_display }}</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6>Current Status for {{ user.get_department_display }} Department:</h6>
+                            <h3 class="text-center">
+                                <span class="badge bg-{% if exam_mode.is_enabled %}danger{% else %}success{% endif %} fs-4">
+                                    {% if exam_mode.is_enabled %}ENABLED{% else %}DISABLED{% endif %}
+                                </span>
+                            </h3>
+                            {% if exam_mode.is_enabled and exam_mode.enabled_at %}
+                                <p class="text-center text-muted">
+                                    Enabled on: {{ exam_mode.enabled_at|date:"M d, Y H:i" }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="text-center">
+                        {% csrf_token %}
+                        <div class="form-check form-switch d-flex justify-content-center mb-4">
+                            <div>
+                                {{ form.is_enabled }}
+                                <label class="form-check-label fs-5 ms-2" for="{{ form.is_enabled.id_for_label }}">
+                                    Enable Exam Mode
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'hod_dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-{% if exam_mode.is_enabled %}success{% else %}danger{% endif %} btn-lg">
+                                <i class="fas fa-save me-2"></i>Update Exam Mode
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
