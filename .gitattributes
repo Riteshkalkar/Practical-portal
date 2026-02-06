@@ -1,2 +1,2 @@
 *.js linguist-detectable=false
-* .fluent linguist-detectable=false
+* .fluent linguist-vendored 
